@@ -1,31 +1,29 @@
 package com.android.gitsearch.presentation.userlist
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.android.gitsearch.domain.model.User
+import com.android.gitsearch.domain.usecase.SearchUsersUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
-class UserListViewModel : ViewModel() {
+class UserListViewModel(
+    private val searchUsersUseCase: SearchUsersUseCase
+) : ViewModel() {
     private val _state = MutableStateFlow(UserListState())
     val state: StateFlow<UserListState> = _state
 
-    // TODO: change to api data not dummy data
-    private val dummyUsers = listOf(
-        User(1, "judy", "https://avatars.githubusercontent.com/u/1?v=4"),
-        User(2, "edy", "https://avatars.githubusercontent.com/u/2?v=4"),
-        User(3, "jolie", "https://avatars.githubusercontent.com/u/3?v=4"),
-    )
-
-    init {
-        _state.value = _state.value.copy(users = dummyUsers)
-    }
-
     fun onQueryChanged(newQuery: String) {
-        _state.value = _state.value.copy(
-            query = newQuery,
-            users = dummyUsers.filter {
-                it.userName.contains(newQuery, ignoreCase = true)
+        _state.value = _state.value.copy(query = newQuery)
+
+        viewModelScope.launch {
+            try {
+                val result: List<User> = searchUsersUseCase(newQuery)
+                _state.value = _state.value.copy(users = result)
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-        )
+        }
     }
 }

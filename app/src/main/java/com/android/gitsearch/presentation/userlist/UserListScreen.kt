@@ -19,7 +19,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.android.gitsearch.data.remote.repository.UserRepositoryImpl
 import com.android.gitsearch.domain.model.User
+import com.android.gitsearch.domain.usecase.SearchUsersUseCase
 import com.android.gitsearch.presentation.userlist.components.UserListItem
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,9 +39,11 @@ fun UserListScreen(
             )
         }
     ) { innerPadding ->
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .padding(innerPadding)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
             OutlinedTextField(
                 value = state.query,
                 onValueChange = onQueryChanged,
@@ -60,12 +64,17 @@ fun UserListScreen(
 
 @Composable
 fun UserListScreenWithViewModel(onUserClick: (String) -> Unit) {
-    val viewModel = remember { UserListViewModel() }
+    val viewModel = remember {
+        val repository = UserRepositoryImpl()
+        val useCase = SearchUsersUseCase(repository)
+        UserListViewModel(useCase)
+    }
     val state by viewModel.state.collectAsState()
     UserListScreen(
-        state = state, onQueryChanged = viewModel::onQueryChanged, onUserClick = onUserClick
+        state = state,
+        onQueryChanged = viewModel::onQueryChanged,
+        onUserClick = onUserClick
     )
-
 }
 
 @Preview(showBackground = true)
