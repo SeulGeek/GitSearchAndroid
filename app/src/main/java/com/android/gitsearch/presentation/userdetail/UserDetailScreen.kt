@@ -1,5 +1,6 @@
 package com.android.gitsearch.presentation.userdetail
 
+import android.content.Intent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,8 +15,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.net.toUri
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.android.gitsearch.domain.model.Repository
@@ -36,7 +42,7 @@ fun UserDetailScreen(
             TopAppBar(
                 title = { Text(text = userDetail.userName) },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack()}) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back Button"
@@ -61,7 +67,27 @@ fun UserDetailScreen(
 
         }
     }
+}
 
+@Composable
+fun UserDetailScreenWithViewModel(
+    navController: NavController,
+    userName: String
+) {
+    val viewModel = remember { UserDetailViewModel(userName) }
+    val userDetail by viewModel.userDetail.collectAsState()
+    val repositories by viewModel.repositories.collectAsState()
+    val context = LocalContext.current
+
+    UserDetailScreen(
+        navController = navController,
+        userDetail = userDetail,
+        repositories = repositories,
+        onRepositoryClick = { repo ->
+            val intent = Intent(Intent.ACTION_VIEW, repo.htmlUrl.toUri())
+            context.startActivity(intent)
+        }
+    )
 }
 
 @Preview
