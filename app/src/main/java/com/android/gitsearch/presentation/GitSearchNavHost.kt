@@ -9,7 +9,7 @@ import com.android.gitsearch.presentation.userdetail.UserDetailScreenWithViewMod
 import com.android.gitsearch.presentation.userlist.UserListScreenWithViewModel
 
 @Composable
-fun GitSearchApp() {
+fun GitSearchNavHost() {
     val navController = rememberNavController()
 
     NavHost(

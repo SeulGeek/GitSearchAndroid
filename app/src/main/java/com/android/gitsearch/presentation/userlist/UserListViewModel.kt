@@ -4,11 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.gitsearch.domain.model.User
 import com.android.gitsearch.domain.usecase.SearchUsersUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class UserListViewModel(
+@HiltViewModel
+class UserListViewModel @Inject constructor(
     private val searchUsersUseCase: SearchUsersUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(UserListState())

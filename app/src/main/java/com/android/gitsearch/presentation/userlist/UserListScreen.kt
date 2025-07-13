@@ -15,13 +15,11 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.android.gitsearch.data.remote.repository.UserRepositoryImpl
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.android.gitsearch.domain.model.User
-import com.android.gitsearch.domain.usecase.SearchUsersUseCase
 import com.android.gitsearch.presentation.userlist.components.UserListItem
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,11 +62,7 @@ fun UserListScreen(
 
 @Composable
 fun UserListScreenWithViewModel(onUserClick: (String) -> Unit) {
-    val viewModel = remember {
-        val repository = UserRepositoryImpl()
-        val useCase = SearchUsersUseCase(repository)
-        UserListViewModel(useCase)
-    }
+    val viewModel: UserListViewModel = hiltViewModel()
     val state by viewModel.state.collectAsState()
     UserListScreen(
         state = state,
