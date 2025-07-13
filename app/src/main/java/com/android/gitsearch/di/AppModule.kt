@@ -1,6 +1,6 @@
 package com.android.gitsearch.di
 
-import com.android.gitsearch.data.remote.api.GitHubAPI
+import com.android.gitsearch.data.remote.api.GitHubApi
 import com.android.gitsearch.data.remote.repository.UserRepositoryImpl
 import com.android.gitsearch.domain.repository.UserRepository
 import com.android.gitsearch.domain.usecase.SearchUsersUseCase
@@ -35,13 +35,13 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideGitHubApi(retrofit: Retrofit): GitHubAPI {
-        return retrofit.create(GitHubAPI::class.java)
+    fun provideGitHubApi(retrofit: Retrofit): GitHubApi {
+        return retrofit.create(GitHubApi::class.java)
     }
 
     @Provides
     @Singleton
-    fun provideUserRepository(api: GitHubAPI): UserRepository {
+    fun provideUserRepository(api: GitHubApi): UserRepository {
         return UserRepositoryImpl(api)
     }
 
