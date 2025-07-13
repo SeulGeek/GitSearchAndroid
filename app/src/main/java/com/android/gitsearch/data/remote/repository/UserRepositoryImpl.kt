@@ -1,12 +1,12 @@
 package com.android.gitsearch.data.remote.repository
 
-import com.android.gitsearch.data.remote.NetworkModule
+import com.android.gitsearch.data.remote.api.GitHubAPI
 import com.android.gitsearch.domain.model.User
 import com.android.gitsearch.domain.repository.UserRepository
 
-class UserRepositoryImpl : UserRepository {
-    private val api = NetworkModule.gitHubAPI
-
+class UserRepositoryImpl(
+    private val api: GitHubAPI
+) : UserRepository {
     override suspend fun searchUsers(query: String): List<User> {
         val response = api.searchUsers(query)
 
@@ -18,5 +18,4 @@ class UserRepositoryImpl : UserRepository {
             )
         }
     }
-
 }
