@@ -1,21 +1,18 @@
 package com.android.gitsearch.presentation
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import android.content.Intent
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.android.gitsearch.domain.model.Repository
+import com.android.gitsearch.domain.model.UserDetail
 import com.android.gitsearch.presentation.navigation.Screen
+import com.android.gitsearch.presentation.userdetail.UserDetailScreen
 import com.android.gitsearch.presentation.userlist.UserListScreenWithViewModel
+import androidx.core.net.toUri
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GitSearchApp() {
     val navController = rememberNavController()
@@ -35,18 +32,37 @@ fun GitSearchApp() {
         composable(Screen.UserDetail.route) { backStackEntry ->
             val userName = backStackEntry.arguments?.getString("userName") ?: ""
 
-            Scaffold(
-                topBar = { TopAppBar(title = { Text("User Detail: $userName") }) }
-            ) { innerPadding ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding)
-                ) {
-                    Text("This is $userName's detail Screen")
-                }
+            // TODO: delete this (this is for testing)
+            val dummyUser = UserDetail(
+                avatarUrl = "https://avatars.githubusercontent.com/u/1?v=4",
+                userName = "judy",
+                fullName = "hey judy",
+                followers = 1000,
+                following = 42
+            )
 
-            }
+            val dummyRepos = listOf(
+                Repository(1, "grit", "Git library", "Ruby", 250, "https://github.com/mojombo/grit"),
+                Repository(
+                    2,
+                    "semver",
+                    "Semantic versioning",
+                    "Go",
+                    100,
+                    "https://github.com/mojombo/semver"
+                )
+            )
+            val context = LocalContext.current
+
+            UserDetailScreen(
+                navController = navController,
+                userDetail = dummyUser,
+                repositories = dummyRepos,
+                onRepositoryClick = { repo ->
+                    val intent = Intent(Intent.ACTION_VIEW, repo.htmlUrl.toUri())
+                    context.startActivity(intent)
+                }
+            )
         }
 
     }
