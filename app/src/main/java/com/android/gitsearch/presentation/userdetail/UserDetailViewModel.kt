@@ -48,7 +48,7 @@ class UserDetailViewModel @Inject constructor(
             } catch (e: Exception) {
                 _state.value = _state.value.copy(
                     isLoading = false,
-                    error = e.message ?: "Unknow Error"
+                    error = e.message ?: "Unknown error occurred"
                 )
             }
         }

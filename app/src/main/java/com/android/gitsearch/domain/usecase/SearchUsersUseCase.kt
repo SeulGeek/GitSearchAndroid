@@ -7,5 +7,7 @@ import javax.inject.Inject
 class SearchUsersUseCase @Inject constructor(
     private val repository: UserRepository
 ) {
-    suspend operator fun invoke(query: String): List<User> = repository.searchUsers(query)
+    suspend operator fun invoke(query: String): List<User> {
+        return if (query.isBlank()) emptyList() else repository.searchUsers(query)
+    }
 }
