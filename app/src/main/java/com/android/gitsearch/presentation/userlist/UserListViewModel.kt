@@ -18,14 +18,17 @@ class UserListViewModel @Inject constructor(
     val state: StateFlow<UserListState> = _state
 
     fun onQueryChanged(newQuery: String) {
-        _state.value = _state.value.copy(query = newQuery)
+        _state.value = _state.value.copy(query = newQuery, isLoading = true, error = null)
 
         viewModelScope.launch {
             try {
                 val result: List<User> = searchUsersUseCase(newQuery)
-                _state.value = _state.value.copy(users = result)
+                _state.value = _state.value.copy(users = result, isLoading = false)
             } catch (e: Exception) {
-                e.printStackTrace()
+                _state.value = _state.value.copy(
+                    isLoading = false,
+                    error = e.message ?: "Unknown error occurred"
+                )
             }
         }
     }
