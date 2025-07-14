@@ -31,7 +31,7 @@ fun UserInfoHeader(user: UserDetail) {
         )
         Spacer(modifier = Modifier.width(12.dp))
         Column {
-            Text(text = user.fullName, style = MaterialTheme.typography.titleMedium)
+            user.fullName?.let { Text(text = it, style = MaterialTheme.typography.titleMedium) }
             Text(text = "@${user.userName}", style = MaterialTheme.typography.bodyMedium)
             Text(text = "Followers: ${user.followers} • Following: ${user.following}")
         }

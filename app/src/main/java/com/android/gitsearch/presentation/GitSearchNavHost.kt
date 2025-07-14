@@ -1,9 +1,11 @@
 package com.android.gitsearch.presentation
 
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.android.gitsearch.presentation.navigation.Screen
 import com.android.gitsearch.presentation.userdetail.UserDetailScreenWithViewModel
 import com.android.gitsearch.presentation.userlist.UserListScreenWithViewModel
@@ -24,12 +26,12 @@ fun GitSearchNavHost() {
             )
         }
 
-        composable(Screen.UserDetail.route) { backStackEntry ->
-            val userName = backStackEntry.arguments?.getString("userName") ?: ""
-
+        composable(
+            Screen.UserDetail.route,
+            arguments = listOf(navArgument("userName") { type = NavType.StringType })
+        ) {
             UserDetailScreenWithViewModel(
-                navController = navController,
-                userName = userName
+                navController = navController
             )
         }
 

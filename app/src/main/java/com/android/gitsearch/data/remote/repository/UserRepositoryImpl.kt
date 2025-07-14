@@ -2,6 +2,7 @@ package com.android.gitsearch.data.remote.repository
 
 import com.android.gitsearch.data.remote.api.GitHubApi
 import com.android.gitsearch.domain.model.User
+import com.android.gitsearch.domain.model.UserDetail
 import com.android.gitsearch.domain.repository.UserRepository
 
 class UserRepositoryImpl(
@@ -17,5 +18,17 @@ class UserRepositoryImpl(
                 avatarUrl = it.avatarUrl
             )
         }
+    }
+
+    override suspend fun getUserDetail(userName: String): UserDetail {
+        val dto = api.getUserDetail(userName)
+
+        return UserDetail(
+            userName = dto.userName,
+            avatarUrl = dto.avatarUrl,
+            fullName = dto.fullName,
+            followers = dto.followers,
+            following = dto.following
+        )
     }
 }

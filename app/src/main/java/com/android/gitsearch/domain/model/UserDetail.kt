@@ -1,9 +1,9 @@
 package com.android.gitsearch.domain.model
 
 data class UserDetail(
-    val avatarUrl: String,
     val userName: String,
-    val fullName: String,
+    val avatarUrl: String,
+    val fullName: String?,
     val followers: Int,
     val following: Int,
 )
