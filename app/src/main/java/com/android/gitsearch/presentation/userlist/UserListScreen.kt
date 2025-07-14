@@ -22,22 +22,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.android.gitsearch.domain.model.User
 import com.android.gitsearch.presentation.userlist.components.UserListItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserListScreen(
-    state: UserListState,
+    query: String,
     onQueryChanged: (String) -> Unit,
+    users: LazyPagingItems<User>,
     onUserClick: (String) -> Unit
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            TopAppBar(
-                title = { Text("GitHub User Search") }
-            )
+            TopAppBar(title = { Text("GitHub User Search") })
         }
     ) { innerPadding ->
         Column(
@@ -46,32 +48,60 @@ fun UserListScreen(
                 .padding(innerPadding)
         ) {
             OutlinedTextField(
-                value = state.query,
+                value = query,
                 onValueChange = onQueryChanged,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(12.dp),
                 label = { Text("Search Users") }
             )
-            if (state.error != null) {
+
+            if (query.isBlank()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Error occurred. Please try again later.")
-                }
-            } else if (state.isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
-            } else if (state.users.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No users found.")
+                    Text("Please enter a search term.")
                 }
             } else {
-                LazyColumn {
-                    items(state.users) { user ->
-                        UserListItem(user = user, onClick = { onUserClick(it.userName) })
-                        HorizontalDivider()
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(count = users.itemCount) { index ->
+                        val user = users[index]
+                        user?.let {
+                            UserListItem(user = it, onClick = { onUserClick(it.userName) })
+                            HorizontalDivider()
+                        }
                     }
 
+                    item {
+                        when {
+                            users.loadState.append is LoadState.Loading ||
+                                    users.loadState.refresh is LoadState.Loading -> {
+                                Box(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+                                }
+                            }
+
+                            users.itemCount == 0 &&
+                                    users.loadState.refresh is LoadState.NotLoading -> {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text("No users found.")
+                                }
+                            }
+
+                            users.loadState.refresh is LoadState.Error && query.isNotBlank() -> {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text("Error occurred. Please try again.")
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -81,28 +111,50 @@ fun UserListScreen(
 @Composable
 fun UserListScreenWithViewModel(onUserClick: (String) -> Unit) {
     val viewModel: UserListViewModel = hiltViewModel()
-    val state by viewModel.state.collectAsState()
+    val users = viewModel.usersFlow.collectAsLazyPagingItems()
+    val query by viewModel.query.collectAsState()
+
     UserListScreen(
-        state = state,
+        query = query,
         onQueryChanged = viewModel::onQueryChanged,
+        users = users,
         onUserClick = onUserClick
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
-fun UserListScreenPreview() {
-    val dummyState = UserListState(
-        query = "ju",
-        users = listOf(
-            User(1, "judy", "https://avatars.githubusercontent.com/u/1?v=4"),
-            User(2, "edy", "https://avatars.githubusercontent.com/u/2?v=4"),
-            User(3, "jolie", "https://avatars.githubusercontent.com/u/3?v=4"),
-        )
+fun UserListScreenFakePreview() {
+    val dummyUsers = listOf(
+        User(1, "judy", "https://avatars.githubusercontent.com/u/1?v=4"),
+        User(2, "andy", "https://avatars.githubusercontent.com/u/2?v=4"),
+        User(3, "cindy", "https://avatars.githubusercontent.com/u/3?v=4"),
     )
-    UserListScreen(
-        state = dummyState,
-        onQueryChanged = {},
-        onUserClick = {}
-    )
+
+    Scaffold(
+        topBar = { TopAppBar(title = { Text("GitHub User Search") }) }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            OutlinedTextField(
+                value = "ju",
+                onValueChange = {},
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                label = { Text("Search Users") }
+            )
+
+            LazyColumn {
+                items(dummyUsers) { user ->
+                    UserListItem(user = user, onClick = {})
+                    HorizontalDivider()
+                }
+            }
+        }
+    }
 }

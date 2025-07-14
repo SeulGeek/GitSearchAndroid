@@ -2,56 +2,48 @@ package com.android.gitsearch.presentation.userlist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.android.gitsearch.domain.model.User
-import com.android.gitsearch.domain.usecase.SearchUsersUseCase
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import com.android.gitsearch.data.remote.repository.UserPagingResource.Companion.ITEMS_PER_PAGE
+import com.android.gitsearch.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
 
-@OptIn(FlowPreview::class)
+@OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class UserListViewModel @Inject constructor(
-    private val searchUsersUseCase: SearchUsersUseCase
+    private val repository: UserRepository
 ) : ViewModel() {
 
     private val _query = MutableStateFlow("")
-    private val _state = MutableStateFlow(UserListState())
-    val state: StateFlow<UserListState> = _state
+    val query: StateFlow<String> = _query
 
-    init {
-        // Trigger search only when input changes with debounce
-        viewModelScope.launch {
-            _query
-                .debounce(400) // Wait 400ms after user stops typing
-                .distinctUntilChanged() // Skip if the input hasn't changed
-                .collect { query ->
-                    if (query.isBlank()) {
-                        // If query is blank, reset to initial state
-                        _state.value = _state.value.copy(users = emptyList(), isLoading = false)
-                        return@collect
-                    }
-
-                    _state.value = _state.value.copy(isLoading = true, error = null)
-                    try {
-                        val result: List<User> = searchUsersUseCase(query)
-                        _state.value = _state.value.copy(users = result, isLoading = false)
-                    } catch (e: Exception) {
-                        _state.value = _state.value.copy(
-                            isLoading = false,
-                            error = e.message ?: "Unknown error occurred"
-                        )
-                    }
-                }
+    val usersFlow = _query
+        .debounce(400)
+        .distinctUntilChanged()
+        .flatMapLatest { query ->
+            if (query.isBlank()) {
+                // Disable paging when the query is blank
+                flowOf(PagingData.empty())
+            } else {
+                Pager(PagingConfig(pageSize = ITEMS_PER_PAGE)) {
+                    repository.searchUsersPaging(query)
+                }.flow
+            }
         }
-    }
+        .cachedIn(viewModelScope)
 
     fun onQueryChanged(newQuery: String) {
         _query.value = newQuery
-        _state.value = _state.value.copy(query = newQuery)
     }
 }
