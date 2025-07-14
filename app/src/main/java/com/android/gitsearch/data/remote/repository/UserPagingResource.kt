@@ -1,5 +1,6 @@
 package com.android.gitsearch.data.remote.repository
 
+import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.android.gitsearch.data.remote.api.GitHubApi
@@ -33,6 +34,7 @@ class UserPagingResource(
                 nextKey = if (users.isEmpty()) null else page + 1
             )
         } catch (e: Exception) {
+            Log.e("UserPagingResource", "load error", e)
             LoadResult.Error(e)
         }
     }
