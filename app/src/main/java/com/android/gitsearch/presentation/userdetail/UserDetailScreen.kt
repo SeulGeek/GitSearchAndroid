@@ -63,6 +63,17 @@ fun UserDetailScreen(
             item {
                 UserInfoHeader(userDetail)
             }
+            if (repositories.isEmpty()) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "No repositories found.")
+                    }
+                }
+            }
             items(repositories) { repo ->
                 RepositoryListItem(repository = repo, onClick = onRepositoryClick)
                 HorizontalDivider()
