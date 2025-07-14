@@ -3,7 +3,6 @@ package com.android.gitsearch.di
 import com.android.gitsearch.data.remote.api.GitHubApi
 import com.android.gitsearch.data.remote.repository.UserRepositoryImpl
 import com.android.gitsearch.domain.repository.UserRepository
-import com.android.gitsearch.domain.usecase.SearchUsersUseCase
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -45,10 +44,4 @@ object AppModule {
         return UserRepositoryImpl(api)
     }
 
-    @Provides
-    fun provideSearchUserUseCase(
-        repository: UserRepository
-    ): SearchUsersUseCase {
-        return SearchUsersUseCase(repository)
-    }
 }
