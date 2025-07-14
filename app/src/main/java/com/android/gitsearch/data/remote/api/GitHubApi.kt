@@ -1,5 +1,6 @@
 package com.android.gitsearch.data.remote.api
 
+import com.android.gitsearch.data.remote.dto.RepositoryDto
 import com.android.gitsearch.data.remote.dto.SearchUserResponse
 import com.android.gitsearch.data.remote.dto.UserDetailDto
 import retrofit2.http.GET
@@ -17,4 +18,8 @@ interface GitHubApi {
         @Path("username") userName: String
     ): UserDetailDto
 
+    @GET("/users/{username}/repos")
+    suspend fun getUserRepos(
+        @Path("username") userName: String
+    ): List<RepositoryDto>
 }

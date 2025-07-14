@@ -4,11 +4,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,8 +24,8 @@ fun RepositoryListItem(
             .fillMaxWidth()
             .padding(16.dp)
             .clickable { onClick(repository) }) {
-        Text(text = repository.name, style = MaterialTheme.typography.titleMedium)
-        repository.description.takeIf { it.isNotBlank() }?.let {
+        Text(text = repository.repoName, style = MaterialTheme.typography.titleMedium)
+        repository.description?.takeIf { it.isNotBlank() }?.let {
             Text(text = it, style = MaterialTheme.typography.bodyMedium)
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -36,7 +33,7 @@ fun RepositoryListItem(
                 Text(text = it, style = MaterialTheme.typography.labelSmall)
             }
             Text(
-                text = "⭐ ${repository.stargazersCount}",
+                text = "⭐ ${repository.starCount}",
                 style = MaterialTheme.typography.labelSmall
             )
         }
@@ -49,10 +46,10 @@ fun RepositoryListItem(
 fun RepositoryListItemPreview() {
     val dummyRepo = Repository(
         id = 1296269,
-        name = "monalisa octocat",
+        repoName = "monalisa octocat",
         description = "This your first repo!",
         language = "Flutter",
-        stargazersCount = 420,
+        starCount = 420,
         htmlUrl = "https://github.com/octocat"
     )
 
