@@ -17,8 +17,8 @@ class UserDetailViewModel @Inject constructor(
     private val getUserDetailUseCase: GetUserDetailUseCase,
     private val getUserReposUseCase: GetUserReposUseCase
 ) : ViewModel() {
-    private val userName = savedStateHandle.get<String>("userName") ?: ""
-    val _state = MutableStateFlow(UserDetailState(isLoading = true))
+    private val userName = savedStateHandle.get<String>("userName")
+    private val _state = MutableStateFlow(UserDetailState(isLoading = true))
     val state: StateFlow<UserDetailState> = _state
 
     init {
@@ -26,6 +26,14 @@ class UserDetailViewModel @Inject constructor(
     }
 
     private fun loadUserData() {
+        if (userName.isNullOrBlank()) {
+            _state.value = _state.value.copy(
+                isLoading = false,
+                error = "Invalid username"
+            )
+            return
+        }
+
         viewModelScope.launch {
             try {
                 val details = getUserDetailUseCase(userName = userName)
