@@ -25,7 +25,7 @@ class UserDetailViewModel @Inject constructor(
         loadUserData()
     }
 
-    private fun loadUserData() {
+    fun loadUserData() {
         if (userName.isNullOrBlank()) {
             _state.value = _state.value.copy(
                 isLoading = false,
